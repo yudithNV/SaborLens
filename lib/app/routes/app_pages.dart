@@ -1,6 +1,10 @@
 import 'package:get/get.dart';
 import '../modules/splash/splash_binding.dart';
 import '../modules/splash/splash_view.dart';
+import '../modules/login/login_binding.dart';
+import '../modules/login/login_view.dart';
+import '../modules/registro/registro_binding.dart';
+import '../modules/registro/registro_view.dart';
 import '../modules/home/home_binding.dart';
 import '../modules/home/home_view.dart';
 import '../modules/detalle/detalle_binding.dart';
@@ -16,7 +20,16 @@ class AppPages {
       page: () => const SplashView(),
       binding: SplashBinding(),
     ),
-    
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginView(),
+      binding: LoginBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.registro,
+      page: () => const RegistroView(),
+      binding: RegistroBinding(),
+    ),
     GetPage(
       name: AppRoutes.home,
       page: () => const HomeView(),

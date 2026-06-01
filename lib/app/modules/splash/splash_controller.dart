@@ -3,7 +3,6 @@ import '../../routes/app_routes.dart';
 
 class SplashController extends GetxController {
   void goToHome() {
-    Get.offNamed(AppRoutes.home);
-    
+    Get.offNamed(AppRoutes.login);  // ← antes era home
   }
 }
