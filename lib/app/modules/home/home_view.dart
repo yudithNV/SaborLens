@@ -7,125 +7,110 @@ import 'home_controller.dart';
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
-@override
-Widget build(BuildContext context) {
-  return Obx(
-    () => Stack(
-      children: [
-        Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: AppBar(
-            title: Text(
-              'SaborLens',
-              style: GoogleFonts.fraunces(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textDark,
-                letterSpacing: -0.3,
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => Stack(
+        children: [
+          Scaffold(
+            backgroundColor: AppColors.background,
+            // AppBar eliminado — lo maneja NavView
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    '¿Qué estás comiendo hoy?',
+                    style: TextStyle(
+                        fontSize: 13, color: AppColors.textMedium),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Identifica cualquier plato\nboliviano al instante',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textDark,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  _mainButton(
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Escanear Plato',
+                    sublabel: 'Usa la cámara de tu dispositivo',
+                    onTap: controller.escanearPlato,
+                  ),
+                  const SizedBox(height: 10),
+                  _secondaryButton(
+                    icon: Icons.photo_outlined,
+                    label: 'Subir de Galería',
+                    sublabel: 'Elige una foto existente',
+                    onTap: controller.subirDeGaleria,
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'Platos Recomendados',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _recommendedCard(),
+                ],
               ),
             ),
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                Text(
-                  '¿Qué estás comiendo hoy?',
-                  style: TextStyle(fontSize: 13, color: AppColors.textMedium),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Identifica cualquier plato\nboliviano al instante',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textDark,
-                    height: 1.3,
+
+          // overlay de loading
+          if (controller.isLoading.value)
+            Container(
+              color: Colors.black.withOpacity(0.6),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 32, vertical: 28),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBg,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-                const SizedBox(height: 24),
-
-                // botón principal - escanear
-                _mainButton(
-                  icon: Icons.camera_alt_outlined,
-                  label: 'Escanear Plato',
-                  sublabel: 'Usa la cámara de tu dispositivo',
-                  onTap: controller.escanearPlato,
-                ),
-                const SizedBox(height: 10),
-
-                // botón secundario - galería
-                _secondaryButton(
-                  icon: Icons.photo_outlined,
-                  label: 'Subir de Galería',
-                  sublabel: 'Elige una foto existente',
-                  onTap: controller.subirDeGaleria,
-                ),
-                const SizedBox(height: 32),
-
-                // sección recomendado
-                Text(
-                  'Platos Recomendados',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textDark,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        color: AppColors.primary,
+                        strokeWidth: 3,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Identificando plato...',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'La IA está analizando tu imagen',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMedium,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 14),
-                _recommendedCard(),
-              ],
-            ),
-          ),
-        ),
-
-        // overlay de loading
-        if (controller.isLoading.value)
-          Container(
-            color: Colors.black.withOpacity(0.6),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 32, vertical: 28),
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(
-                      color: AppColors.primary,
-                      strokeWidth: 3,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Identificando plato...',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'La IA está analizando tu imagen',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textMedium,
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _mainButton({
     required IconData icon,
@@ -144,8 +129,7 @@ Widget build(BuildContext context) {
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 44, height: 44,
               decoration: BoxDecoration(
                 color: AppColors.whiteTransparent,
                 borderRadius: BorderRadius.circular(10),
@@ -189,18 +173,18 @@ Widget build(BuildContext context) {
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8DDD6), width: 0.5),
+          border: Border.all(
+              color: const Color(0xFFE8DDD6), width: 0.5),
         ),
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 44, height: 44,
               decoration: BoxDecoration(
-                color: AppColors.secondaryLight,  // verde suave
+                color: AppColors.secondaryLight,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: AppColors.secondary, size: 22), // ícono verde
+              child: Icon(icon, color: AppColors.secondary, size: 22),
             ),
             const SizedBox(width: 14),
             Column(
@@ -231,14 +215,13 @@ Widget build(BuildContext context) {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFEDE5DF), width: 0.5),
+        border: Border.all(
+            color: const Color(0xFFEDE5DF), width: 0.5),
       ),
       child: Row(
         children: [
-          // imagen placeholder
           Container(
-            width: 90,
-            height: 90,
+            width: 90, height: 90,
             decoration: BoxDecoration(
               color: AppColors.primarySoft,
               borderRadius: const BorderRadius.only(
@@ -247,7 +230,8 @@ Widget build(BuildContext context) {
               ),
             ),
             child: Icon(Icons.restaurant,
-                size: 38, color: AppColors.primary.withOpacity(0.4)),
+                size: 38,
+                color: AppColors.primary.withOpacity(0.4)),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -256,7 +240,6 @@ Widget build(BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // tag
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 2),
@@ -264,24 +247,20 @@ Widget build(BuildContext context) {
                       color: AppColors.primarySoft,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      'Recomendado',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primary,
-                      ),
-                    ),
+                    child: Text('Recomendado',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primary,
+                        )),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    'Silpancho Cochabambino',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textDark,
-                    ),
-                  ),
+                  Text('Silpancho Cochabambino',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textDark,
+                      )),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -290,14 +269,15 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 2),
                       Text('Cochabamba',
                           style: TextStyle(
-                              fontSize: 12, color: AppColors.textMedium)),
+                              fontSize: 12,
+                              color: AppColors.textMedium)),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // stats
                   Row(
                     children: [
-                      _stat(Icons.local_fire_department_outlined, '650 kcal'),
+                      _stat(Icons.local_fire_department_outlined,
+                          '650 kcal'),
                       const SizedBox(width: 12),
                       _stat(Icons.access_time_outlined, '35 min'),
                     ],
@@ -318,7 +298,8 @@ Widget build(BuildContext context) {
         Icon(icon, size: 13, color: AppColors.primary),
         const SizedBox(width: 4),
         Text(label,
-            style: TextStyle(fontSize: 11, color: AppColors.textMedium)),
+            style: TextStyle(
+                fontSize: 11, color: AppColors.textMedium)),
       ],
     );
   }
