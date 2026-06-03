@@ -1,0 +1,6 @@
+fastapi
+google-generativeai
+python-dotenv
+python-multipart
+supabase
+uvicorn

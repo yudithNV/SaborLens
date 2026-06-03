@@ -14,27 +14,25 @@ class SplashView extends GetView<SplashController> {
       body: Stack(
         children: [
           // círculos decorativos de fondo
-          Positioned(
-            top: -70, right: -60,
-            child: _circle(220),
-          ),
-          Positioned(
-            bottom: 120, left: -30,
-            child: _circle(140),
-          ),
+          Positioned(top: -70, right: -60, child: _circle(220)),
+          Positioned(bottom: 120, left: -30, child: _circle(140)),
           SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 64),
                 // logo
                 Container(
-                  width: 72, height: 72,
+                  width: 72,
+                  height: 72,
                   decoration: BoxDecoration(
                     color: AppColors.whiteTransparent,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(Icons.camera_alt_outlined,
-                      color: AppColors.white, size: 36),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    color: AppColors.white,
+                    size: 36,
+                  ),
                 ),
                 const SizedBox(height: 22),
                 // título
@@ -64,17 +62,23 @@ class SplashView extends GetView<SplashController> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
-                      _featureCard(Icons.camera_alt_outlined,
-                          'Reconocimiento por foto',
-                          'Escanea o sube una imagen y la IA identifica el plato'),
+                      _featureCard(
+                        Icons.camera_alt_outlined,
+                        'Reconocimiento por foto',
+                        'Escanea o sube una imagen y la IA identifica el plato',
+                      ),
                       const SizedBox(height: 12),
-                      _featureCard(Icons.eco_outlined,
-                          'Información nutricional',
-                          'Calorías, proteínas, ingredientes y tiempo de preparación'),
+                      _featureCard(
+                        Icons.eco_outlined,
+                        'Información nutricional',
+                        'Calorías, proteínas, ingredientes y tiempo de preparación',
+                      ),
                       const SizedBox(height: 12),
-                      _featureCard(Icons.menu_book_outlined,
-                          'Historia y cultura',
-                          'Conoce el origen y la tradición detrás de cada plato'),
+                      _featureCard(
+                        Icons.menu_book_outlined,
+                        'Historia y cultura',
+                        'Conoce el origen y la tradición detrás de cada plato',
+                      ),
                     ],
                   ),
                 ),
@@ -105,10 +109,11 @@ class SplashView extends GetView<SplashController> {
   }
 
   Widget _circle(double size) => Container(
-    width: size, height: size,
+    width: size,
+    height: size,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
-      color: Colors.white.withOpacity(0.06),
+      color: Colors.white.withValues(alpha: 0.06),
     ),
   );
 
@@ -123,9 +128,10 @@ class SplashView extends GetView<SplashController> {
       child: Row(
         children: [
           Container(
-            width: 38, height: 38,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
+              color: Colors.white.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: AppColors.white, size: 19),
@@ -135,15 +141,19 @@ class SplashView extends GetView<SplashController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.white)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.white,
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(desc,
-                    style: TextStyle(
-                        fontSize: 12, color: AppColors.textMuted)),
+                Text(
+                  desc,
+                  style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                ),
               ],
             ),
           ),

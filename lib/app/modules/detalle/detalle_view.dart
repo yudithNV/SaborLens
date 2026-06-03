@@ -35,15 +35,15 @@ class DetalleView extends GetView<DetalleController> {
                     ? Icon(
                         Icons.restaurant,
                         size: 80,
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                       )
                     : Image.network(
                         controller.imagenUrl.value,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
+                        errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.restaurant,
                           size: 80,
-                          color: AppColors.primary.withOpacity(0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                         ),
                       ),
               ),
@@ -61,6 +61,8 @@ class DetalleView extends GetView<DetalleController> {
                         letterSpacing: -0.3,
                       ),
                     ),
+                    const SizedBox(height: 14),
+                    _favoritoButton(),
                     const SizedBox(height: 24),
                     Row(
                       children: [
@@ -76,11 +78,7 @@ class DetalleView extends GetView<DetalleController> {
                           'Proteinas',
                         ),
                         const SizedBox(width: 12),
-                        _indicador(
-                          Icons.access_time_outlined,
-                          '-',
-                          'Tiempo',
-                        ),
+                        _indicador(Icons.access_time_outlined, '-', 'Tiempo'),
                       ],
                     ),
                     const SizedBox(height: 28),
@@ -108,16 +106,51 @@ class DetalleView extends GetView<DetalleController> {
                     SizedBox(
                       height: 320,
                       child: TabBarView(
-                        children: [
-                          _ingredientesTab(),
-                          _historiaTab(),
-                        ],
+                        children: [_ingredientesTab(), _historiaTab()],
                       ),
                     ),
                   ],
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _favoritoButton() {
+    final puedeGuardar =
+        controller.tienePlato && controller.platoId.value != null;
+    final guardando = controller.isSavingFavorite.value;
+    final favorito = controller.isFavorite.value;
+
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: !puedeGuardar || guardando
+            ? null
+            : controller.alternarFavorito,
+        icon: guardando
+            ? SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              )
+            : Icon(
+                favorito ? Icons.favorite_rounded : Icons.favorite_outline,
+                color: favorito ? AppColors.primary : AppColors.textMedium,
+              ),
+        label: Text(favorito ? 'Quitar de favoritos' : 'Añadir a favoritos'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          side: BorderSide(color: AppColors.primarySoft),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
@@ -195,11 +228,7 @@ class DetalleView extends GetView<DetalleController> {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
       child: Text(
         controller.historia.value,
-        style: TextStyle(
-          fontSize: 14,
-          height: 1.7,
-          color: AppColors.textDark,
-        ),
+        style: TextStyle(fontSize: 14, height: 1.7, color: AppColors.textDark),
       ),
     );
   }

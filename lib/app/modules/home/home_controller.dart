@@ -16,20 +16,25 @@ class HomeController extends GetxController {
   }
 
   Future<void> _abrirImagen(ImageSource source) async {
-    final XFile? imagen = await _picker.pickImage(source: source);
+    try {
+      final XFile? imagen = await _picker.pickImage(source: source);
 
-    if (imagen == null) return; // usuario cancelo
+      if (imagen == null) return; // usuario cancelo
 
-    isLoading.value = true;
-    final detalleController = Get.isRegistered<DetalleController>()
-        ? Get.find<DetalleController>()
-        : Get.put(DetalleController());
+      isLoading.value = true;
+      final detalleController = Get.isRegistered<DetalleController>()
+          ? Get.find<DetalleController>()
+          : Get.put(DetalleController());
 
-    final identificado = await detalleController.identificarPlato(imagen);
-    isLoading.value = false;
+      final identificado = await detalleController.identificarPlato(imagen);
 
-    if (identificado) {
-      Get.toNamed(AppRoutes.detalle);
+      if (identificado) {
+        Get.toNamed(AppRoutes.detalle);
+      }
+    } catch (e) {
+      Get.snackbar('Imagen', 'No se pudo abrir la imagen: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 }

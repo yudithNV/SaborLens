@@ -1,13 +1,24 @@
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile
 from supabase import create_client, Client
 import google.generativeai as genai
 
 app = FastAPI()
 
+load_dotenv(Path(__file__).with_name(".env"))
 
-SUPABASE_URL = "https://qgywxtfrfenfynknfofe.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFneXd4dGZyZmVuZnlua25mb2ZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5Mzc3MjksImV4cCI6MjA5NTUxMzcyOX0.itFK8c2zPf8P9MGo8BZHJDAACTwJcwk1Dibty63wU_Y"
-GEMINI_KEY = "AIzaSyDv6689R8HnOF08pksM3HKg6vRcsTiWquE"
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://qgywxtfrfenfynknfofe.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+GEMINI_KEY = os.getenv("GEMINI_KEY")
+
+if not SUPABASE_KEY:
+    raise RuntimeError("Falta SUPABASE_KEY en Backend/.env")
+
+if not GEMINI_KEY:
+    raise RuntimeError("Falta GEMINI_KEY en Backend/.env")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 genai.configure(api_key=GEMINI_KEY)
@@ -36,7 +47,16 @@ async def identificar_plato(foto: UploadFile = File(...)):
         """
         datos_gemini = [prompt, {"mime_type": foto.content_type, "data": contenido_foto}]
         
-        respuesta_ia = modelo_ia.generate_content(datos_gemini)
+        try:
+            respuesta_ia = modelo_ia.generate_content(datos_gemini)
+        except Exception as e:
+            error = str(e)
+            if "API_KEY_INVALID" in error or "API key expired" in error:
+                return {
+                    "error": "La API key de Gemini expiro o no es valida. Renueva GEMINI_KEY en Backend/.env y reinicia el servidor."
+                }
+            raise
+
         etiqueta = respuesta_ia.text.strip().lower()
         
         if etiqueta == "desconocido":

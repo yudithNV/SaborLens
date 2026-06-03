@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../favoritos/favoritos_controller.dart';
 
 class DetalleController extends GetxController {
-  static final Uri _endpoint =
-      Uri.parse('http://10.0.2.2:8000/identificar');
+  static final Uri _endpoint = Uri.parse('http://192.168.0.9:8000/identificar');
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
@@ -17,8 +19,12 @@ class DetalleController extends GetxController {
   final RxString historia = ''.obs;
   final RxString ingredientes = ''.obs;
   final RxString imagenUrl = ''.obs;
+  final RxnInt platoId = RxnInt();
+  final RxBool isFavorite = false.obs;
+  final RxBool isSavingFavorite = false.obs;
 
   final platoData = <String, dynamic>{}.obs;
+  final _supabase = Supabase.instance.client;
 
   bool get tienePlato => nombre.value.isNotEmpty;
 
@@ -65,15 +71,18 @@ class DetalleController extends GetxController {
         }
 
         mensaje.value = (body['mensaje'] ?? '').toString();
+        platoId.value = _toNullableInt(plato['id']);
         nombre.value = (plato['nombre'] ?? '').toString();
         calorias.value = _toInt(plato['calorias']);
         historia.value = (plato['historia'] ?? '').toString();
-        final ingredientesNormalizados =
-            _normalizarIngredientes(plato['ingredientes']);
+        final ingredientesNormalizados = _normalizarIngredientes(
+          plato['ingredientes'],
+        );
         ingredientes.value = ingredientesNormalizados.join(', ');
         imagenUrl.value = (plato['imagen_url'] ?? '').toString();
 
         platoData.assignAll({
+          'id': platoId.value,
           'nombre': nombre.value,
           'calorias': '${calorias.value} kcal',
           'historia': historia.value,
@@ -81,11 +90,12 @@ class DetalleController extends GetxController {
           'imagen_url': imagenUrl.value,
         });
 
+        await verificarFavorito();
         return true;
       }
 
-      errorMessage.value =
-          (body['error'] ?? 'No se pudo identificar el plato.').toString();
+      errorMessage.value = (body['error'] ?? 'No se pudo identificar el plato.')
+          .toString();
       Get.snackbar('Error', errorMessage.value);
       return false;
     } catch (e) {
@@ -101,6 +111,82 @@ class DetalleController extends GetxController {
     if (value is int) return value;
     if (value is num) return value.toInt();
     return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  int? _toNullableInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString());
+  }
+
+  Future<void> verificarFavorito() async {
+    final user = _supabase.auth.currentUser;
+    final id = platoId.value;
+
+    if (user == null || id == null) {
+      isFavorite.value = false;
+      return;
+    }
+
+    try {
+      final favoritos = await _supabase
+          .from('favoritos')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('plato_id', id)
+          .limit(1);
+
+      isFavorite.value = favoritos.isNotEmpty;
+    } catch (_) {
+      isFavorite.value = false;
+    }
+  }
+
+  Future<void> alternarFavorito() async {
+    final user = _supabase.auth.currentUser;
+    final id = platoId.value;
+
+    if (user == null) {
+      Get.snackbar('Sesion requerida', 'Inicia sesion para guardar favoritos.');
+      return;
+    }
+
+    if (id == null) {
+      Get.snackbar('Sin plato', 'No se encontro el id del plato.');
+      return;
+    }
+
+    try {
+      isSavingFavorite.value = true;
+
+      if (isFavorite.value) {
+        await _supabase
+            .from('favoritos')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('plato_id', id);
+        isFavorite.value = false;
+        Get.snackbar('Favoritos', 'Plato quitado de favoritos.');
+      } else {
+        await _supabase.from('favoritos').upsert({
+          'user_id': user.id,
+          'plato_id': id,
+        }, onConflict: 'user_id,plato_id');
+        isFavorite.value = true;
+        Get.snackbar('Favoritos', 'Plato agregado a favoritos.');
+      }
+
+      if (Get.isRegistered<FavoritosController>()) {
+        await Get.find<FavoritosController>().cargarFavoritos();
+      }
+    } on PostgrestException catch (error) {
+      Get.snackbar('Favoritos', error.message);
+    } catch (_) {
+      Get.snackbar('Favoritos', 'No se pudo actualizar favoritos.');
+    } finally {
+      isSavingFavorite.value = false;
+    }
   }
 
   String _obtenerMimeType(XFile imagen) {
